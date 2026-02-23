@@ -1,0 +1,14 @@
+C:\Users\pipsi\Desktop\PizzaConstructor\bin\Debug\net10.0\PizzaConstructor.exe
+C:\Users\pipsi\Desktop\PizzaConstructor\bin\Debug\net10.0\PizzaConstructor.deps.json
+C:\Users\pipsi\Desktop\PizzaConstructor\bin\Debug\net10.0\PizzaConstructor.runtimeconfig.json
+C:\Users\pipsi\Desktop\PizzaConstructor\bin\Debug\net10.0\PizzaConstructor.dll
+C:\Users\pipsi\Desktop\PizzaConstructor\bin\Debug\net10.0\PizzaConstructor.pdb
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.AssemblyInfoInputs.cache
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.AssemblyInfo.cs
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.csproj.CoreCompileInputs.cache
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.dll
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\refint\PizzaConstructor.dll
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.pdb
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\PizzaConstructor.genruntimeconfig.cache
+C:\Users\pipsi\Desktop\PizzaConstructor\obj\Debug\net10.0\ref\PizzaConstructor.dll
