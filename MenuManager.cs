@@ -8,10 +8,12 @@ namespace PizzaConstructor
     {
         public List<Ingredient> Ingredients {get; private set;}
         public List<PizzaBase> Bases {get; private set;}
+        public List<Pizza> Pizzas {get; private set;}
         public MenuManager()
         {
             Ingredients = new List<Ingredient>();
             Bases = new List<PizzaBase>();
+            Pizzas = new List<Pizza>();
         }
 
         public void CreateIngredient(string name, decimal price)
@@ -129,6 +131,39 @@ namespace PizzaConstructor
                 Bases.RemoveAt(index);
             }
             else { Console.WriteLine("[Ошибка] Основа не найдена."); }
+        }
+
+        public void CreatePizza(string name, PizzaBase pizzaBase, List<Ingredient> selectedIngredients)
+        {
+            Pizza newPizza = new Pizza(name, pizzaBase);
+
+            foreach(var ingredient in selectedIngredients)
+            {
+                newPizza.AddIngredient(ingredient);
+            }
+            Pizzas.Add(newPizza);
+            Console.WriteLine($"[Успешно] Пицца '{name}' создана и добавлена в меню!");
+        }
+
+        public void PrintPizzas()
+        {
+            Console.WriteLine("\n--- Список готовых пицц ---");
+            if (Pizzas.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
+            for (int i = 0; i < Pizzas.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {Pizzas[i].ToString()}");
+            }
+            Console.WriteLine("---------------------------");
+        }
+
+       public void DeletePizza(int index)
+        {
+            if (index >= 0 && index < Pizzas.Count)
+            {
+                Console.WriteLine($"[Успешно] Пицца '{Pizzas[index].Name}' удалена!");
+                Pizzas.RemoveAt(index);
+            }
+            else { Console.WriteLine("[Ошибка] Пицца не найдена."); }
         }
     }
 }

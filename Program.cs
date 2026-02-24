@@ -24,6 +24,9 @@ namespace PizzaConstructor
                 Console.WriteLine("6. Показать все основы");
                 Console.WriteLine("7. Редактировать основу");
                 Console.WriteLine("8. Удалить основу");
+                Console.WriteLine("9. Создать пиццу");
+                Console.WriteLine("10. Показать все пиццы");
+                Console.WriteLine("11. Удалить пиццу");
                 Console.WriteLine("0. Выйти из программы");
                 Console.Write("Выберите действие: ");
 
@@ -127,6 +130,64 @@ namespace PizzaConstructor
                     if (manager.Bases.Count == 0) continue;
                     Console.Write("Номер для удаления: ");
                     if (int.TryParse(Console.ReadLine(), out int index)) manager.DeletePizzaBase(index - 1);
+                }
+                else if (choice == "9")
+                {
+                    if (manager.Bases.Count == 0)
+                    {
+                        Console.WriteLine("[Ошибка] Сначала добавьте хотя бы одну основу для пиццы!");
+                        continue; 
+                    }
+
+                    Console.Write("Введите название новой пиццы: ");
+                    string pizzaName = Console.ReadLine();
+
+                    manager.PrintBases();
+                    Console.Write("Введите номер основы для этой пиццы: ");
+                    if (!int.TryParse(Console.ReadLine(), out int baseIndex) || baseIndex < 1 || baseIndex > manager.Bases.Count)
+                    {
+                        Console.WriteLine("[Ошибка] Неверный номер основы!");
+                        continue;
+                    }
+                    PizzaBase selectedBase = manager.Bases[baseIndex - 1];
+
+                    List<Ingredient> pizzaIngredients = new List<Ingredient>();
+                    if (manager.Ingredients.Count > 0)
+                    {
+                        manager.PrintIngredients();
+                        Console.WriteLine("Вводите номера ингредиентов по одному и нажимайте Enter.");
+                        Console.WriteLine("Когда закончите добавлять ингредиенты, введите 0.");
+
+                        while (true)
+                        {
+                            Console.Write("Номер ингредиента (или 0 для завершения): ");
+                            if (int.TryParse(Console.ReadLine(), out int ingIndex))
+                            {
+                                if (ingIndex == 0) break; 
+                                
+                                if (ingIndex > 0 && ingIndex <= manager.Ingredients.Count)
+                                {
+                                    pizzaIngredients.Add(manager.Ingredients[ingIndex - 1]);
+                                    Console.WriteLine($"  + Добавлен: {manager.Ingredients[ingIndex - 1].Name}");
+                                }
+                                else { Console.WriteLine("  [Ошибка] Такого ингредиента нет."); }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        Console.WriteLine("[Внимание] В системе нет ингредиентов, пицца будет только из основы.");
+                    }
+
+                    manager.CreatePizza(pizzaName, selectedBase, pizzaIngredients);
+                }
+                else if (choice == "10") manager.PrintPizzas();
+                else if (choice == "11")
+                {
+                    manager.PrintPizzas();
+                    if (manager.Pizzas.Count == 0) continue;
+                    Console.Write("Введите номер пиццы для удаления: ");
+                    if (int.TryParse(Console.ReadLine(), out int index)) manager.DeletePizza(index - 1);
                 }
                 else if (choice == "0")
                 {
