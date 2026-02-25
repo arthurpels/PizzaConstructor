@@ -9,11 +9,13 @@ namespace PizzaConstructor
         public List<Ingredient> Ingredients {get; private set;}
         public List<PizzaBase> Bases {get; private set;}
         public List<Pizza> Pizzas {get; private set;}
+        public List<PizzaBorder> Borders {get; private set;}
         public MenuManager()
         {
             Ingredients = new List<Ingredient>();
             Bases = new List<PizzaBase>();
             Pizzas = new List<Pizza>();
+            Borders = new List<PizzaBorder>();
         }
 
         public void CreateIngredient(string name, decimal price)
@@ -81,8 +83,11 @@ namespace PizzaConstructor
                     Console.WriteLine($"[Ошибка] Стоимость неклассической основы не может быть больше {maxPrice} руб. (на 20% больше от классической).");
                     return false;
                 }
+                else
+                {
+                    Console.WriteLine("[Внимание] В системе пока нет классической основы. Правило 20% не применено, но лучше сначала добавить классику!");
+                }
             }
-
             return true;
         }
 
@@ -162,6 +167,46 @@ namespace PizzaConstructor
             {
                 Console.WriteLine($"[Успешно] Пицца '{Pizzas[index].Name}' удалена!");
                 Pizzas.RemoveAt(index);
+            }
+            else { Console.WriteLine("[Ошибка] Пицца не найдена."); }
+        }
+
+        public void CreateBorder(string name, List<Ingredient> borderIngredients, List<Pizza> allowedPizzas)
+        {
+            PizzaBorder newBorder = new PizzaBorder(name);
+            foreach (var ing in borderIngredients) newBorder.AddIngredient(ing);
+            foreach (var p in allowedPizzas) newBorder.AllowForPizza(p);
+            
+            Borders.Add(newBorder);
+            Console.WriteLine($"[Успешно] Бортик '{name}' создан!");
+        }
+
+        public void PrintBorders()
+        {
+            Console.WriteLine("\n--- Список бортиков ---");
+            if (Borders.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
+            for (int i = 0; i < Borders.Count; i++)
+            {
+                Console.WriteLine($"{i + 1}. {Borders[i].ToString()}");
+            }
+            Console.WriteLine("-----------------------");
+        }
+
+        public void SetBorderForPizza(int pizzaIndex, PizzaBorder border)
+        {
+            if (pizzaIndex >= 0 && pizzaIndex < Pizzas.Count)
+            {
+                Pizza targetPizza = Pizzas[pizzaIndex];
+                
+                if (border.IsAllowedFor(targetPizza))
+                {
+                    targetPizza.Border = border;
+                    Console.WriteLine($"[Успешно] Бортик '{border.Name}' добавлен к пицце '{targetPizza.Name}'!");
+                }
+                else
+                {
+                    Console.WriteLine($"[Ошибка] Этот бортик не разрешено использовать с пиццей '{targetPizza.Name}'.");
+                }
             }
             else { Console.WriteLine("[Ошибка] Пицца не найдена."); }
         }

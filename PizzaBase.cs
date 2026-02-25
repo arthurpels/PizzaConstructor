@@ -6,7 +6,10 @@ namespace PizzaConstructor{
 
         public bool IsClassic { get; set; }
         
-        public PizzaBase(string name, decimal price, bool isClassic = false) : base(name, price) {}
+        public PizzaBase(string name, decimal price, bool isClassic = false) : base(name, price)
+        {
+            IsClassic = isClassic;
+        }
 
         public override string ToString()
         {

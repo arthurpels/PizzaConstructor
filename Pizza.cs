@@ -11,12 +11,15 @@ namespace PizzaConstructor
         public string Name {get; set;}
         public PizzaBase Base {get; private set;}
         public List<Ingredient> Ingredients{get; private set;}
+
+        public PizzaBorder Border {get; set;}
         public decimal Price
         {
             get
             {
                 decimal ingredientsCost = Ingredients.Sum(i => i.Price);
-                return Base.Price + ingredientsCost;
+                decimal borderCost = Border != null ? Border.Price : 0;
+                return Base.Price + ingredientsCost + borderCost;
             }
         }
     
@@ -42,7 +45,10 @@ namespace PizzaConstructor
         public override string ToString()
         {
             string ingredientNames = Ingredients.Count > 0 ? string.Join(", ", Ingredients.Select(i => i.Name)) : "нет дополнительных ингредиентов";
-            return $"Пицца «{Name}» | Основа: {Base.Name} | Ингредиенты: {ingredientNames} | Итоговая стоимость: {Price} руб. ";
+
+            string borderInfo = Border != null ? $" | {Border.Name}" : " | без бортика";
+        
+            return $"Пицца «{Name}» | Основа: {Base.Name}{borderInfo} | Ингредиенты: {ingredientNames} | Итого: {Price} руб.";
         }
     }
 }

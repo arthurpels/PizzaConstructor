@@ -27,6 +27,9 @@ namespace PizzaConstructor
                 Console.WriteLine("9. Создать пиццу");
                 Console.WriteLine("10. Показать все пиццы");
                 Console.WriteLine("11. Удалить пиццу");
+                Console.WriteLine("12. Создать бортик");
+                Console.WriteLine("13. Показать бортики");
+                Console.WriteLine("14. Добавить/изменить бортик у готовой пиццы");
                 Console.WriteLine("0. Выйти из программы");
                 Console.Write("Выберите действие: ");
 
@@ -99,8 +102,9 @@ namespace PizzaConstructor
                     Console.Write("Введите стоимость: ");
                     if (decimal.TryParse(Console.ReadLine(), out decimal price))
                     {
-                        Console.Write("Это классическая основа? (да/нет): ");
-                        bool isClassic = Console.ReadLine().ToLower() == "да";
+                        Console.Write("Это классическая основа? (y/n): ");
+                        string answer = Console.ReadLine().Trim().ToLower();
+                        bool isClassic = (answer == "да" || answer == "д" || answer == "1" || answer == "y" || answer == "yes");
                         manager.CreatePizzaBase(name, price, isClassic);
                     }
                     else Console.WriteLine("[Ошибка] Неверный формат стоимости!");
@@ -118,8 +122,9 @@ namespace PizzaConstructor
                         Console.Write("Новая стоимость: ");
                         if (decimal.TryParse(Console.ReadLine(), out decimal price))
                         {
-                            Console.Write("Это классическая основа? (да/нет): ");
-                            bool isClassic = Console.ReadLine().ToLower() == "да";
+                            Console.Write("Это классическая основа? (y/n): ");
+                            string answer = Console.ReadLine().Trim().ToLower();
+                            bool isClassic = (answer == "да" || answer == "д" || answer == "1" || answer == "y" || answer == "yes");
                             manager.EditPizzaBase(index - 1, name, price, isClassic);
                         }
                     }
@@ -188,6 +193,64 @@ namespace PizzaConstructor
                     if (manager.Pizzas.Count == 0) continue;
                     Console.Write("Введите номер пиццы для удаления: ");
                     if (int.TryParse(Console.ReadLine(), out int index)) manager.DeletePizza(index - 1);
+                }
+                else if (choice == "12")
+                {
+                    Console.Write("Введите название бортика: ");
+                    string borderName = Console.ReadLine();
+
+                    List<Ingredient> borderIngredients = new List<Ingredient>();
+                    if (manager.Ingredients.Count > 0)
+                    {
+                        manager.PrintIngredients();
+                        Console.WriteLine("Вводите номера ингредиентов для бортика (0 для завершения):");
+                        while (true)
+                        {
+                            Console.Write("Номер ингредиента: ");
+                            if (int.TryParse(Console.ReadLine(), out int ingIndex) && ingIndex == 0) break;
+                            if (ingIndex > 0 && ingIndex <= manager.Ingredients.Count)
+                            {
+                                borderIngredients.Add(manager.Ingredients[ingIndex - 1]);
+                                Console.WriteLine($"  + Добавлен: {manager.Ingredients[ingIndex - 1].Name}");
+                            }
+                        }
+                    }
+
+                    List<Pizza> allowedPizzas = new List<Pizza>();
+                    if (manager.Pizzas.Count > 0)
+                    {
+                        manager.PrintPizzas();
+                        Console.WriteLine("Для каких пицц разрешен этот бортик? Вводите номера (0 - разрешить для всех):");
+                        while (true)
+                        {
+                            Console.Write("Номер пиццы: ");
+                            if (int.TryParse(Console.ReadLine(), out int pIndex) && pIndex == 0) break;
+                            if (pIndex > 0 && pIndex <= manager.Pizzas.Count)
+                            {
+                                allowedPizzas.Add(manager.Pizzas[pIndex - 1]);
+                                Console.WriteLine($"  + Разрешено для: {manager.Pizzas[pIndex - 1].Name}");
+                            }
+                        }
+                    }
+
+                    manager.CreateBorder(borderName, borderIngredients, allowedPizzas);
+                }
+                else if (choice == "13") manager.PrintBorders();
+                else if (choice == "14")
+                {
+                    manager.PrintPizzas();
+                    if (manager.Pizzas.Count == 0) continue;
+                    Console.Write("Введите номер пиццы: ");
+                    if (int.TryParse(Console.ReadLine(), out int pIndex) && pIndex > 0 && pIndex <= manager.Pizzas.Count)
+                    {
+                        manager.PrintBorders();
+                        if (manager.Borders.Count == 0) continue;
+                        Console.Write("Введите номер бортика для этой пиццы: ");
+                        if (int.TryParse(Console.ReadLine(), out int bIndex) && bIndex > 0 && bIndex <= manager.Borders.Count)
+                        {
+                            manager.SetBorderForPizza(pIndex - 1, manager.Borders[bIndex - 1]);
+                        }
+                    }
                 }
                 else if (choice == "0")
                 {
