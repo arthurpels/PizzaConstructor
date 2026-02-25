@@ -10,6 +10,7 @@ namespace PizzaConstructor
         public Guid Id{get; private set;}
         public string Name {get; set;}
         public PizzaBase Base {get; private set;}
+        public PizzaSize Size {get; set;} = PizzaSize.Medium;
         public List<Ingredient> Ingredients{get; private set;}
 
         public PizzaBorder Border {get; set;}
@@ -44,11 +45,26 @@ namespace PizzaConstructor
 
         public override string ToString()
         {
+            string sizeStr = Size == PizzaSize.Small ? "Маленькая" : Size == PizzaSize.Medium ? "Средняя" : "Большая";
+            
             string ingredientNames = Ingredients.Count > 0 ? string.Join(", ", Ingredients.Select(i => i.Name)) : "нет дополнительных ингредиентов";
 
             string borderInfo = Border != null ? $" | {Border.Name}" : " | без бортика";
         
             return $"Пицца «{Name}» | Основа: {Base.Name}{borderInfo} | Ингредиенты: {ingredientNames} | Итого: {Price} руб.";
+        }
+
+        public Pizza Clone()
+        {
+            Pizza copy = new Pizza(this.Name, this.Base);
+            copy.Border = this.Border;
+            copy.Size = this.Size;
+
+            foreach(var ing in this.Ingredients)
+            {
+                copy.AddIngredient(ing);
+            }
+            return copy;
         }
     }
 }
