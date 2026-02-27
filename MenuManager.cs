@@ -10,12 +10,14 @@ namespace PizzaConstructor
         public List<PizzaBase> Bases {get; private set;}
         public List<Pizza> Pizzas {get; private set;}
         public List<PizzaBorder> Borders {get; private set;}
+        public List<Order> Orders {get; private set;}
         public MenuManager()
         {
             Ingredients = new List<Ingredient>();
             Bases = new List<PizzaBase>();
             Pizzas = new List<Pizza>();
             Borders = new List<PizzaBorder>();
+            Orders = new List<Order>();
         }
 
         public void CreateIngredient(string name, decimal price)
@@ -209,6 +211,29 @@ namespace PizzaConstructor
                 }
             }
             else { Console.WriteLine("[Ошибка] Пицца не найдена."); }
+        }
+
+        public void AddOrder(Order order)
+        {
+            Orders.Add(order);
+            Console.WriteLine($"\n[Успешно] Заказ №{order.OrderNumber} успешно оформлен!");
+            Console.WriteLine($"Итого к оплате: {order.TotalPrice} руб.");
+        }
+
+        public void PrintOrders()
+        {
+            Console.WriteLine("\n--- Список всех заказов ---");
+            if (Orders.Count == 0) { Console.WriteLine("Заказов пока нет."); return; }
+            for (int i = 0; i < Orders.Count; i++)
+            {
+                Console.WriteLine($"{Orders[i].ToString()}");
+                Console.WriteLine("Состав заказа:");
+                foreach (var pizza in Orders[i].Pizzas)
+                {
+                    Console.WriteLine($"  - {pizza.ToString()}");
+                }
+                Console.WriteLine("---------------------------");
+            }
         }
     }
 }

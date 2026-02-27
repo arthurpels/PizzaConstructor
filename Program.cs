@@ -30,6 +30,8 @@ namespace PizzaConstructor
                 Console.WriteLine("12. Создать бортик");
                 Console.WriteLine("13. Показать бортики");
                 Console.WriteLine("14. Добавить/изменить бортик у готовой пиццы");
+                Console.WriteLine("15. Оформить заказ");
+                Console.WriteLine("16. Показать все заказы");
                 Console.WriteLine("0. Выйти из программы");
                 Console.Write("Выберите действие: ");
 
@@ -251,6 +253,116 @@ namespace PizzaConstructor
                             manager.SetBorderForPizza(pIndex - 1, manager.Borders[bIndex - 1]);
                         }
                     }
+                }
+                // --- БЛОК ЗАКАЗОВ ---
+                else if (choice == "15")
+                {
+                    if (manager.Pizzas.Count == 0)
+                    {
+                        Console.WriteLine("[Ошибка] В меню пока нет ни одной пиццы! Сначала создайте пиццу (пункт 9).");
+                        continue;
+                    }
+
+                    Console.Write("Введите комментарий к заказу (или нажмите Enter, чтобы пропустить): ");
+                    string comment = Console.ReadLine();
+                    
+                    Order newOrder = new Order(comment);
+
+                    Console.Write("Сделать заказ отложенным? (нажмите 1 - ДА, любую другую клавишу - НЕТ): ");
+                    if (Console.ReadKey().KeyChar == '1')
+                    {
+                        Console.WriteLine(); // перенос строки
+                        Console.Write("Введите дату и время (например, 03.05.2026 15:30): ");
+                        if (DateTime.TryParse(Console.ReadLine(), out DateTime delayedTime))
+                        {
+                            newOrder.DelayedTime = delayedTime;
+                        }
+                        else
+                        {
+                            Console.WriteLine("[Ошибка] Неверный формат времени. Заказ будет оформлен на текущее время.");
+                        }
+                    }
+                    else { Console.WriteLine(); }
+
+                    // Главный цикл: выбираем пиццы для заказа
+                    while (true)
+                    {
+                        manager.PrintPizzas();
+                        Console.Write("Введите номер пиццы для добавления в заказ (или 0 для завершения сборки заказа): ");
+                        if (int.TryParse(Console.ReadLine(), out int pIndex))
+                        {
+                            if (pIndex == 0) break; // Нажали 0 - выходим из цикла выбора пицц
+
+                            if (pIndex > 0 && pIndex <= manager.Pizzas.Count)
+                            {
+                                // Клонируем пиццу, чтобы не сломать меню
+                                Pizza orderedPizza = manager.Pizzas[pIndex - 1].Clone();
+
+                                // 1. Выбор размера
+                                Console.WriteLine("\nВыберите размер пиццы:");
+                                Console.WriteLine("1 - Маленькая\n2 - Средняя\n3 - Большая");
+                                Console.Write("Ваш выбор: ");
+                                string sizeChoice = Console.ReadLine();
+                                if (sizeChoice == "1") orderedPizza.Size = PizzaSize.Small;
+                                else if (sizeChoice == "3") orderedPizza.Size = PizzaSize.Large;
+                                else orderedPizza.Size = PizzaSize.Medium; 
+
+                                // 2. Удвоение конкретных ингредиентов
+                                if (orderedPizza.Ingredients.Count > 0)
+                                {
+                                    Console.Write("Хотите удвоить какие-нибудь ингредиенты в этой пицце? (нажмите 1 - ДА, любую другую - НЕТ): ");
+                                    if (Console.ReadKey().KeyChar == '1')
+                                    {
+                                        Console.WriteLine(); 
+                                        while (true) // Внутренний цикл для удвоения
+                                        {
+                                            var distinctIngredients = orderedPizza.Ingredients.Distinct().ToList();
+                                            
+                                            Console.WriteLine("\n--- Доступные для удвоения ингредиенты ---");
+                                            for (int i = 0; i < distinctIngredients.Count; i++)
+                                            {
+                                                Console.WriteLine($"{i + 1}. {distinctIngredients[i].Name} (+{distinctIngredients[i].Price} руб.)");
+                                            }
+                                            
+                                            Console.Write("Введите номер ингредиента для удвоения (или 0 для продолжения): ");
+                                            if (int.TryParse(Console.ReadLine(), out int doubleIndex))
+                                            {
+                                                if (doubleIndex == 0) break; // Нажали 0 - заканчиваем удваивать
+                                                
+                                                if (doubleIndex > 0 && doubleIndex <= distinctIngredients.Count)
+                                                {
+                                                    Ingredient ingToDouble = distinctIngredients[doubleIndex - 1];
+                                                    orderedPizza.AddIngredient(ingToDouble);
+                                                    Console.WriteLine($"[Успешно] Порция '{ingToDouble.Name}' удвоена!");
+                                                }
+                                                else { Console.WriteLine("[Ошибка] Такого номера нет."); }
+                                            }
+                                        }
+                                    }
+                                    else { Console.WriteLine(); }
+                                }
+
+                                // ВАЖНО: Добавляем готовую пиццу в заказ! (именно эта строчка, скорее всего, пропала)
+                                newOrder.AddPizza(orderedPizza);
+                                Console.WriteLine($"\n  + Пицца '{orderedPizza.Name}' добавлена в корзину!");
+                            }
+                            else { Console.WriteLine("[Ошибка] Такого номера пиццы нет."); }
+                        }
+                    }
+
+                    // После того как мы нажали 0 и вышли из главного цикла, сохраняем заказ в систему
+                    if (newOrder.Pizzas.Count > 0)
+                    {
+                        manager.AddOrder(newOrder);
+                    }
+                    else
+                    {
+                        Console.WriteLine("\n[Отмена] Вы не добавили ни одной пиццы. Заказ отменен.");
+                    }
+                }
+                else if (choice == "16")
+                {
+                    manager.PrintOrders();
                 }
                 else if (choice == "0")
                 {

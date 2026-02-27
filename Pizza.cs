@@ -46,7 +46,7 @@ namespace PizzaConstructor
         public override string ToString()
         {
             string sizeStr = Size == PizzaSize.Small ? "Маленькая" : Size == PizzaSize.Medium ? "Средняя" : "Большая";
-            
+
             string ingredientNames = Ingredients.Count > 0 ? string.Join(", ", Ingredients.Select(i => i.Name)) : "нет дополнительных ингредиентов";
 
             string borderInfo = Border != null ? $" | {Border.Name}" : " | без бортика";
