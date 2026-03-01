@@ -5,7 +5,7 @@ using System.Reflection.Metadata.Ecma335;
 
 namespace PizzaConstructor
 {
-    public class Pizza
+    public class Pizza : IIdentifiable, IPriceable
     {
         public Guid Id{get; private set;}
         public string Name {get; set;}
@@ -14,7 +14,7 @@ namespace PizzaConstructor
         public List<Ingredient> Ingredients{get; private set;}
 
         public PizzaBorder Border {get; set;}
-        public decimal Price
+        public virtual decimal Price
         {
             get
             {

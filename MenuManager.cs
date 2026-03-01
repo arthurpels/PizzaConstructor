@@ -27,18 +27,23 @@ namespace PizzaConstructor
             Console.WriteLine($"[Успешно] Ингредиент «{name}» добавлен в систему.");
         }
 
-        public void PrintIngredients()
+        public void PrintIngredients(string searchName = null)
         {
             Console.WriteLine("\n--- Список ингредиентов ---");
-            if (Ingredients.Count == 0)
-            {
-                Console.WriteLine("Список ингредиентов пока пуст.");
-                return;
-            }
+            bool found = false;
 
             for (int i = 0; i < Ingredients.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Ingredients[i].ToString()}");
+                if (string.IsNullOrWhiteSpace(searchName) || Ingredients[i].Name.ToLower().Contains(searchName.ToLower()))
+                {
+                    Console.WriteLine($"{i + 1}. {Ingredients[i].ToString()}");
+                    found = true;
+                }
+            }
+
+            if (!found)
+            {
+                Console.WriteLine("Список ингредиентов пока пуст.");
             }
             Console.WriteLine("---------------------------");
         }
@@ -103,15 +108,22 @@ namespace PizzaConstructor
             }
         }
 
-        public void PrintBases()
+        public void PrintBases(string searchName = null)
         {
             Console.WriteLine("\n--- Список основ для пиццы ---");
-            if (Bases.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
+            bool found = false;
+
             for (int i = 0; i < Bases.Count; i++)
             {
-                string type = Bases[i].IsClassic ? "[Классика]" : "[Неклассика]";
-                Console.WriteLine($"{i + 1}. {type} {Bases[i].ToString()}");
+                if (string.IsNullOrWhiteSpace(searchName) || Bases[i].Name.ToLower().Contains(searchName.ToLower()))
+                {
+                    string type = Bases[i].IsClassic ? "[Классика]" : "[Неклассика]";
+                    Console.WriteLine($"{i + 1}. {type} {Bases[i].ToString()}");
+                    found = true;
+                }
             }
+            
+            if (!found) Console.WriteLine("Список пуст или по вашему запросу ничего не найдено.");
             Console.WriteLine("------------------------------");
         }
 
@@ -152,13 +164,16 @@ namespace PizzaConstructor
             Console.WriteLine($"[Успешно] Пицца '{name}' создана и добавлена в меню!");
         }
 
-        public void PrintPizzas()
+        public void PrintPizzas(string ingredientFilter = null)
         {
             Console.WriteLine("\n--- Список готовых пицц ---");
-            if (Pizzas.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
-            for (int i = 0; i < Pizzas.Count; i++)
+            var filteredList = string.IsNullOrWhiteSpace(ingredientFilter) 
+                ? Pizzas 
+                : Pizzas.Where(p => p.Ingredients.Any(i => i.Name.ToLower().Contains(ingredientFilter.ToLower()))).ToList();
+            if (filteredList.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
+            for (int i = 0; i < filteredList.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Pizzas[i].ToString()}");
+                Console.WriteLine($"{i + 1}. {filteredList[i].ToString()}");
             }
             Console.WriteLine("---------------------------");
         }
@@ -183,14 +198,21 @@ namespace PizzaConstructor
             Console.WriteLine($"[Успешно] Бортик '{name}' создан!");
         }
 
-        public void PrintBorders()
+        public void PrintBorders(string searchName = null)
         {
             Console.WriteLine("\n--- Список бортиков ---");
-            if (Borders.Count == 0) { Console.WriteLine("Список пока пуст."); return; }
+            bool found = false;
+
             for (int i = 0; i < Borders.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {Borders[i].ToString()}");
+                if (string.IsNullOrWhiteSpace(searchName) || Borders[i].Name.ToLower().Contains(searchName.ToLower()))
+                {
+                    Console.WriteLine($"{i + 1}. {Borders[i].ToString()}");
+                    found = true;
+                }
             }
+            
+            if (!found) Console.WriteLine("Список пуст или по вашему запросу ничего не найдено.");
             Console.WriteLine("-----------------------");
         }
 
@@ -220,20 +242,70 @@ namespace PizzaConstructor
             Console.WriteLine($"Итого к оплате: {order.TotalPrice} руб.");
         }
 
-        public void PrintOrders()
+        public void PrintOrders(DateTime? dateFilter = null)
         {
             Console.WriteLine("\n--- Список всех заказов ---");
-            if (Orders.Count == 0) { Console.WriteLine("Заказов пока нет."); return; }
-            for (int i = 0; i < Orders.Count; i++)
+            var filteredList = dateFilter == null 
+                ? Orders 
+                : Orders.Where(o => o.OrderTime.Date == dateFilter.Value.Date || 
+                                (o.DelayedTime.HasValue && o.DelayedTime.Value.Date == dateFilter.Value.Date)).ToList();
+            if (filteredList.Count == 0) { Console.WriteLine("Заказов пока нет."); return; }
+            for (int i = 0; i < filteredList.Count; i++)
             {
-                Console.WriteLine($"{Orders[i].ToString()}");
+                Console.WriteLine($"{filteredList[i].ToString()}");
                 Console.WriteLine("Состав заказа:");
-                foreach (var pizza in Orders[i].Pizzas)
+                foreach (var pizza in filteredList[i].Pizzas)
                 {
                     Console.WriteLine($"  - {pizza.ToString()}");
                 }
                 Console.WriteLine("---------------------------");
             }
+        }
+        public void SeedDefaultData()
+        {
+            PizzaBase classicBase = new PizzaBase("Классическое тесто", 200, true);
+            PizzaBase blackBase = new PizzaBase("Черное тесто (неклассика)", 240, false);
+            Bases.Add(classicBase);
+            Bases.Add(blackBase);
+
+            Ingredient cheese = new Ingredient("Сыр Моцарелла", 60);
+            Ingredient pepperoni = new Ingredient("Пепперони", 80);
+            Ingredient tomatoes = new Ingredient("Помидоры", 40);
+            Ingredient mushrooms = new Ingredient("Шампиньоны", 50);
+            Ingredient chicken = new Ingredient("Куриное филе", 90);
+            Ingredient pineapple = new Ingredient("Ананасы", 70);
+
+            Ingredients.AddRange(new[] { cheese, pepperoni, tomatoes, mushrooms, chicken, pineapple });
+
+            PizzaBorder cheeseBorder = new PizzaBorder("Сырный бортик");
+            cheeseBorder.AddIngredient(cheese);
+            Borders.Add(cheeseBorder);
+
+            PizzaBorder sausageBorder = new PizzaBorder("Колбасный бортик");
+            sausageBorder.AddIngredient(pepperoni);
+            Borders.Add(sausageBorder);
+
+            Pizza margarita = new Pizza("Маргарита", classicBase);
+            margarita.AddIngredient(cheese);
+            margarita.AddIngredient(tomatoes);
+            margarita.Size = PizzaSize.Medium;
+            Pizzas.Add(margarita);
+
+            Pizza pepperoniPizza = new Pizza("Пепперони", classicBase);
+            pepperoniPizza.AddIngredient(cheese);
+            pepperoniPizza.AddIngredient(pepperoni);
+            pepperoniPizza.Size = PizzaSize.Large;
+            Pizzas.Add(pepperoniPizza);
+
+            Pizza hawaiian = new Pizza("Гавайская", blackBase);
+            hawaiian.AddIngredient(cheese);
+            hawaiian.AddIngredient(chicken);
+            hawaiian.AddIngredient(pineapple);
+            hawaiian.Size = PizzaSize.Medium;
+            Pizzas.Add(hawaiian);
+
+            cheeseBorder.AllowForPizza(margarita);
+            margarita.Border = cheeseBorder;
         }
     }
 }

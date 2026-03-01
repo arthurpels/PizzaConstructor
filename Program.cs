@@ -12,6 +12,8 @@ namespace PizzaConstructor
 
             MenuManager manager = new MenuManager();
 
+            manager.SeedDefaultData();
+
             while (true)
             {
                 Console.WriteLine("\n=== КОНСТРУКТОР ПИЦЦЫ: ГЛАВНОЕ МЕНЮ ===");
@@ -24,14 +26,24 @@ namespace PizzaConstructor
                 Console.WriteLine("6. Показать все основы");
                 Console.WriteLine("7. Редактировать основу");
                 Console.WriteLine("8. Удалить основу");
+                Console.WriteLine("---------------------------------------");
                 Console.WriteLine("9. Создать пиццу");
                 Console.WriteLine("10. Показать все пиццы");
                 Console.WriteLine("11. Удалить пиццу");
+                Console.WriteLine("---------------------------------------");
                 Console.WriteLine("12. Создать бортик");
                 Console.WriteLine("13. Показать бортики");
                 Console.WriteLine("14. Добавить/изменить бортик у готовой пиццы");
+                Console.WriteLine("---------------------------------------");
                 Console.WriteLine("15. Оформить заказ");
                 Console.WriteLine("16. Показать все заказы");
+                Console.WriteLine("---------------------------------------");
+                Console.WriteLine("17. Найти пиццы по ингредиенту (Фильтр)");
+                Console.WriteLine("18. Найти заказы по дате (Фильтр)");
+                Console.WriteLine("19. Найти ингредиент по названию");
+                Console.WriteLine("20. Найти основу по названию");
+                Console.WriteLine("21. Найти бортик по названию");
+                Console.WriteLine("---------------------------------------");
                 Console.WriteLine("0. Выйти из программы");
                 Console.Write("Выберите действие: ");
 
@@ -271,7 +283,7 @@ namespace PizzaConstructor
                     Console.Write("Сделать заказ отложенным? (нажмите 1 - ДА, любую другую клавишу - НЕТ): ");
                     if (Console.ReadKey().KeyChar == '1')
                     {
-                        Console.WriteLine(); // перенос строки
+                        Console.WriteLine();
                         Console.Write("Введите дату и время (например, 03.05.2026 15:30): ");
                         if (DateTime.TryParse(Console.ReadLine(), out DateTime delayedTime))
                         {
@@ -284,21 +296,108 @@ namespace PizzaConstructor
                     }
                     else { Console.WriteLine(); }
 
-                    // Главный цикл: выбираем пиццы для заказа
                     while (true)
                     {
                         manager.PrintPizzas();
-                        Console.Write("Введите номер пиццы для добавления в заказ (или 0 для завершения сборки заказа): ");
+                        Console.WriteLine("\n--- Добавление пиццы в заказ ---");
+                        Console.WriteLine("Введите НОМЕР пиццы из меню.");
+                        Console.WriteLine("Введите -1, чтобы собрать КАСТОМНУЮ пиццу с нуля.");
+                        Console.WriteLine("Введите -2, чтобы собрать КОМБИНИРОВАННУЮ пиццу (из 2-х половинок).");
+                        Console.WriteLine("Введите 0 для ЗАВЕРШЕНИЯ заказа.");
+                        Console.Write("Ваш выбор: ");
+                        
                         if (int.TryParse(Console.ReadLine(), out int pIndex))
                         {
-                            if (pIndex == 0) break; // Нажали 0 - выходим из цикла выбора пицц
+                            if (pIndex == 0) break;
 
-                            if (pIndex > 0 && pIndex <= manager.Pizzas.Count)
+                            if (pIndex == -1)
                             {
-                                // Клонируем пиццу, чтобы не сломать меню
+                                if (manager.Bases.Count == 0)
+                                {
+                                    Console.WriteLine("[Ошибка] В системе нет основ для пиццы! Кастомную пиццу собрать нельзя.");
+                                    continue;
+                                }
+
+                                manager.PrintBases();
+                                Console.Write("Введите номер основы для вашей кастомной пиццы: ");
+                                if (!int.TryParse(Console.ReadLine(), out int baseIndex) || baseIndex < 1 || baseIndex > manager.Bases.Count)
+                                {
+                                    Console.WriteLine("[Ошибка] Неверный номер основы!");
+                                    continue;
+                                }
+                                PizzaBase customBase = manager.Bases[baseIndex - 1];
+
+                                Pizza customPizza = new Pizza("Кастомная пицца (Своя сборка)", customBase);
+
+                                Console.WriteLine("\nВыберите размер пиццы:");
+                                Console.WriteLine("1 - Маленькая\n2 - Средняя\n3 - Большая");
+                                Console.Write("Ваш выбор: ");
+                                string customSizeChoice = Console.ReadLine();
+                                if (customSizeChoice == "1") customPizza.Size = PizzaSize.Small;
+                                else if (customSizeChoice == "3") customPizza.Size = PizzaSize.Large;
+                                else customPizza.Size = PizzaSize.Medium;
+
+                                if (manager.Ingredients.Count > 0)
+                                {
+                                    manager.PrintIngredients();
+                                    Console.WriteLine("Вводите номера ингредиентов (0 для завершения):");
+                                    while (true)
+                                    {
+                                        Console.Write("Номер ингредиента: ");
+                                        if (int.TryParse(Console.ReadLine(), out int customIngIndex))
+                                        {
+                                            if (customIngIndex == 0) break;
+                                            if (customIngIndex > 0 && customIngIndex <= manager.Ingredients.Count)
+                                            {
+                                                customPizza.AddIngredient(manager.Ingredients[customIngIndex - 1]);
+                                                Console.WriteLine($"  + Добавлен: {manager.Ingredients[customIngIndex - 1].Name}");
+                                            }
+                                        }
+                                    }
+                                }
+
+                                newOrder.AddPizza(customPizza);
+                                Console.WriteLine("\n[Успешно] Кастомная пицца добавлена в корзину!");
+                            }
+                            else if (pIndex == -2)
+                            {
+                                if (manager.Pizzas.Count < 2)
+                                {
+                                    Console.WriteLine("[Ошибка] Для создания половинок нужно хотя бы 2 готовые пиццы в меню!");
+                                    continue;
+                                }
+
+                                manager.PrintPizzas();
+                                
+                                Console.Write("Введите номер ПЕРВОЙ пиццы (левая половина): ");
+                                if (!int.TryParse(Console.ReadLine(), out int half1Index) || half1Index < 1 || half1Index > manager.Pizzas.Count) continue;
+                                Pizza pizza1 = manager.Pizzas[half1Index - 1];
+
+                                Console.Write("Введите номер ВТОРОЙ пиццы (правая половина): ");
+                                if (!int.TryParse(Console.ReadLine(), out int half2Index) || half2Index < 1 || half2Index > manager.Pizzas.Count) continue;
+                                Pizza pizza2 = manager.Pizzas[half2Index - 1];
+
+                                string comboName = $"Половинка {pizza1.Name} / Половинка {pizza2.Name}";
+                                CombinedPizza comboPizza = new CombinedPizza(comboName, pizza1.Base);
+
+                                foreach (var ing in pizza1.Ingredients) comboPizza.AddIngredient(ing);
+                                foreach (var ing in pizza2.Ingredients) comboPizza.AddIngredient(ing);
+
+                                Console.WriteLine("\nВыберите размер комбинированной пиццы:");
+                                Console.WriteLine("1 - Маленькая\n2 - Средняя\n3 - Большая");
+                                Console.Write("Ваш выбор: ");
+                                string comboSizeChoice = Console.ReadLine();
+                                if (comboSizeChoice == "1") comboPizza.Size = PizzaSize.Small;
+                                else if (comboSizeChoice == "3") comboPizza.Size = PizzaSize.Large;
+                                else comboPizza.Size = PizzaSize.Medium;
+
+                                newOrder.AddPizza(comboPizza);
+                                Console.WriteLine($"\n[Успешно] Комбинированная пицца добавлена в корзину!");
+                            }
+                            else if (pIndex > 0 && pIndex <= manager.Pizzas.Count)
+                            {
                                 Pizza orderedPizza = manager.Pizzas[pIndex - 1].Clone();
 
-                                // 1. Выбор размера
                                 Console.WriteLine("\nВыберите размер пиццы:");
                                 Console.WriteLine("1 - Маленькая\n2 - Средняя\n3 - Большая");
                                 Console.Write("Ваш выбор: ");
@@ -307,14 +406,13 @@ namespace PizzaConstructor
                                 else if (sizeChoice == "3") orderedPizza.Size = PizzaSize.Large;
                                 else orderedPizza.Size = PizzaSize.Medium; 
 
-                                // 2. Удвоение конкретных ингредиентов
                                 if (orderedPizza.Ingredients.Count > 0)
                                 {
                                     Console.Write("Хотите удвоить какие-нибудь ингредиенты в этой пицце? (нажмите 1 - ДА, любую другую - НЕТ): ");
                                     if (Console.ReadKey().KeyChar == '1')
                                     {
                                         Console.WriteLine(); 
-                                        while (true) // Внутренний цикл для удвоения
+                                        while (true)
                                         {
                                             var distinctIngredients = orderedPizza.Ingredients.Distinct().ToList();
                                             
@@ -327,7 +425,7 @@ namespace PizzaConstructor
                                             Console.Write("Введите номер ингредиента для удвоения (или 0 для продолжения): ");
                                             if (int.TryParse(Console.ReadLine(), out int doubleIndex))
                                             {
-                                                if (doubleIndex == 0) break; // Нажали 0 - заканчиваем удваивать
+                                                if (doubleIndex == 0) break;
                                                 
                                                 if (doubleIndex > 0 && doubleIndex <= distinctIngredients.Count)
                                                 {
@@ -342,7 +440,6 @@ namespace PizzaConstructor
                                     else { Console.WriteLine(); }
                                 }
 
-                                // ВАЖНО: Добавляем готовую пиццу в заказ! (именно эта строчка, скорее всего, пропала)
                                 newOrder.AddPizza(orderedPizza);
                                 Console.WriteLine($"\n  + Пицца '{orderedPizza.Name}' добавлена в корзину!");
                             }
@@ -350,7 +447,6 @@ namespace PizzaConstructor
                         }
                     }
 
-                    // После того как мы нажали 0 и вышли из главного цикла, сохраняем заказ в систему
                     if (newOrder.Pizzas.Count > 0)
                     {
                         manager.AddOrder(newOrder);
@@ -363,6 +459,45 @@ namespace PizzaConstructor
                 else if (choice == "16")
                 {
                     manager.PrintOrders();
+                }
+                else if (choice == "17")
+                {
+                    Console.Write("Введите название ингредиента для поиска (например, 'помидор'): ");
+                    string filter = Console.ReadLine();
+                    
+                    manager.PrintPizzas(filter);
+                }
+                else if (choice == "18")
+                {
+                    Console.Write("Введите дату для поиска заказов (в формате ДД.ММ.ГГГГ): ");
+                    string dateInput = Console.ReadLine();
+                    
+                    if (DateTime.TryParse(dateInput, out DateTime searchDate))
+                    {
+                        manager.PrintOrders(searchDate);
+                    }
+                    else
+                    {
+                        Console.WriteLine("[Ошибка] Неверный формат даты.");
+                    }
+                }
+                else if (choice == "19")
+                {
+                    Console.Write("Введите часть названия ингредиента для поиска: ");
+                    string search = Console.ReadLine();
+                    manager.PrintIngredients(search);
+                }
+                else if (choice == "20")
+                {
+                    Console.Write("Введите часть названия основы для поиска: ");
+                    string search = Console.ReadLine();
+                    manager.PrintBases(search);
+                }
+                else if (choice == "21")
+                {
+                    Console.Write("Введите часть названия бортика для поиска: ");
+                    string search = Console.ReadLine();
+                    manager.PrintBorders(search);
                 }
                 else if (choice == "0")
                 {

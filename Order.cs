@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace PizzaConstructor
 {
-    public class Order
+    public class Order : IIdentifiable
     {
         public Guid Id {get; private set;}
         public int OrderNumber{get; private set;}
